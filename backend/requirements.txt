@@ -1,0 +1,20 @@
+# FastAPI Framework
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Data Validation
+pydantic[email]
+email-validator
+
+# MongoDB
+motor
+odmantic
+
+# Authentication & Security
+bcrypt
+passlib[bcrypt]
+python-jose[cryptography]
+
+# Environment & Configuration
+python-dotenv

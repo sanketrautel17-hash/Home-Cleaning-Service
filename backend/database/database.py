@@ -2,7 +2,7 @@ import os
 from motor.motor_asyncio import AsyncIOMotorClient
 from odmantic import AIOEngine
 from dotenv import load_dotenv
-from core import logger
+from commons.logger import logger
 
 load_dotenv()
 
