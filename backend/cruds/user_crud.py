@@ -104,6 +104,110 @@ class UserCRUD:
         await self.engine.save(user)
         return user
 
+    async def create_google_user(
+        self,
+        email: str,
+        full_name: str,
+        google_id: str,
+        profile_pic: Optional[str] = None,
+        role: str = "customer",
+    ) -> User:
+        """
+        Create a new user from Google OAuth.
+
+        Args:
+            email: User's email from Google
+            full_name: User's full name from Google
+            google_id: Google's unique user ID
+            profile_pic: Profile picture URL from Google
+            role: User role - 'customer' or 'cleaner'
+
+        Returns:
+            Created User object
+
+        Raises:
+            ValueError: If email already exists
+
+        Example:
+            >>> user = await user_crud.create_google_user(
+            ...     email="user@gmail.com",
+            ...     full_name="John Doe",
+            ...     google_id="123456789",
+            ...     profile_pic="https://..."
+            ... )
+        """
+        # Check if user already exists
+        existing_user = await self.get_user_by_email(email)
+        if existing_user:
+            raise ValueError(f"User with email {email} already exists")
+
+        # Convert role string to enum
+        user_role = UserRole.CUSTOMER if role == "customer" else UserRole.CLEANER
+
+        # Create user object (no password for OAuth users)
+        user = User(
+            email=email.lower().strip(),
+            password_hash=None,  # No password for OAuth users
+            auth_provider="google",
+            google_id=google_id,
+            full_name=full_name.strip() if full_name else None,
+            profile_pic=profile_pic,
+            role=user_role,
+            is_active=True,
+            email_verified=True,  # Google already verified the email
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow(),
+        )
+
+        # Save to database
+        await self.engine.save(user)
+        return user
+
+    async def get_user_by_google_id(self, google_id: str) -> Optional[User]:
+        """
+        Get a user by their Google ID.
+
+        Args:
+            google_id: Google's unique user ID
+
+        Returns:
+            User object if found, None otherwise
+        """
+        return await self.engine.find_one(User, User.google_id == google_id)
+
+    async def update_user_google_info(
+        self,
+        user_id: str,
+        google_id: str,
+        profile_pic: Optional[str] = None,
+    ) -> Optional[User]:
+        """
+        Link an existing user account with Google OAuth.
+
+        Args:
+            user_id: User's ObjectId as string
+            google_id: Google's unique user ID
+            profile_pic: Optional profile picture URL from Google
+
+        Returns:
+            Updated User object if found, None otherwise
+        """
+        user = await self.get_user_by_id(user_id)
+        if not user:
+            return None
+
+        user.auth_provider = "google"
+        user.google_id = google_id
+        user.email_verified = True  # Google verified the email
+
+        if profile_pic and not user.profile_pic:
+            user.profile_pic = profile_pic
+
+        user.updated_at = datetime.utcnow()
+
+        await self.engine.save(user)
+        return user
+
     # =========================================================================
     # READ Operations
     # =========================================================================
@@ -414,6 +518,14 @@ class UserCRUD:
         user = await self.get_user_by_email(email)
 
         if not user:
+            return None
+
+        # Check if user has a password (OAuth users don't have passwords)
+        if not user.password_hash:
+            return None
+
+        # Check if user is using local auth (not OAuth)
+        if user.auth_provider != "local":
             return None
 
         if not verify_password(password, user.password_hash):

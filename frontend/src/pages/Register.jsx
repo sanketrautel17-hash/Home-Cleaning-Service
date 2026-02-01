@@ -10,7 +10,7 @@ const Register = () => {
         phone: '',
         role: 'customer'
     });
-    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const { register } = useAuth();
     const navigate = useNavigate();
 
@@ -21,6 +21,7 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setSuccess('');
 
         // Basic password validation
         if (formData.password.length < 8) {
@@ -29,12 +30,59 @@ const Register = () => {
         }
 
         try {
-            await register(formData);
-            navigate('/dashboard');
+            const data = await register(formData);
+            if (data.message && !data.tokens) {
+                setSuccess(data.message);
+            } else {
+                navigate('/dashboard');
+            }
         } catch (err) {
             setError(err.response?.data?.detail || 'Registration failed');
         }
     };
+
+    if (success) {
+        return (
+            <div className="container" style={{
+                minHeight: '80vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+                <div className="glass-panel" style={{
+                    width: '100%',
+                    maxWidth: '500px',
+                    padding: '3rem',
+                    borderRadius: 'var(--radius-xl)',
+                    textAlign: 'center'
+                }}>
+                    <div style={{
+                        width: '64px',
+                        height: '64px',
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 1.5rem',
+                        color: 'var(--success)'
+                    }}>
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M22 2L11 13" />
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z" />
+                        </svg>
+                    </div>
+                    <h2 style={{ marginBottom: '1rem' }}>Check Your Email</h2>
+                    <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>
+                        {success}
+                    </p>
+                    <Link to="/login" className="btn btn-primary" style={{ width: '100%' }}>
+                        Back to Login
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="container" style={{

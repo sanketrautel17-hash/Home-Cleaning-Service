@@ -438,3 +438,91 @@ async def send_verification_email(current_user: User = Depends(get_current_user)
     result = await auth_controller.send_verification_email(email=current_user.email)
 
     return result
+
+
+# =============================================================================
+# GOOGLE OAUTH
+# =============================================================================
+
+
+@router.get(
+    "/google/login",
+    response_model=None,
+    summary="Get Google OAuth login URL",
+    description="Get the Google OAuth URL to redirect users for login.",
+    responses={
+        200: {
+            "description": "Google OAuth URL",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "url": "https://accounts.google.com/o/oauth2/v2/auth?...",
+                        "message": "Redirect user to this URL for Google login",
+                    }
+                }
+            },
+        },
+        500: {"description": "Google OAuth not configured"},
+    },
+)
+async def google_login(state: str = None):
+    """
+    Get Google OAuth login URL.
+
+    Frontend should redirect users to the returned URL.
+    After authentication, Google will redirect to the callback endpoint.
+
+    - **state**: Optional state parameter for CSRF protection
+    """
+    result = await auth_controller.get_google_login_url(state=state)
+
+    return result
+
+
+@router.get(
+    "/google/callback",
+    response_model=None,
+    summary="Google OAuth callback",
+    description="Handle the OAuth callback from Google and authenticate user.",
+    responses={
+        200: {
+            "description": "Google login successful",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "user": {
+                            "id": "507f1f77bcf86cd799439011",
+                            "email": "user@gmail.com",
+                            "full_name": "John Doe",
+                            "role": "customer",
+                            "auth_provider": "google",
+                        },
+                        "tokens": {
+                            "access_token": "eyJhbGci...",
+                            "refresh_token": "eyJhbGci...",
+                            "token_type": "bearer",
+                            "expires_in": 1800,
+                        },
+                        "message": "Google login successful",
+                    }
+                }
+            },
+        },
+        400: {"description": "Failed to authenticate with Google"},
+        403: {"description": "Account is deactivated"},
+    },
+)
+async def google_callback(code: str, state: str = None, role: str = "customer"):
+    """
+    Handle Google OAuth callback.
+
+    This endpoint is called by Google after user authentication.
+    It exchanges the authorization code for tokens and creates/logs in the user.
+
+    - **code**: Authorization code from Google
+    - **state**: State parameter for CSRF verification (if provided during login)
+    - **role**: User role for new accounts ('customer' or 'cleaner')
+    """
+    result = await auth_controller.google_callback(code=code, role=role)
+
+    return result

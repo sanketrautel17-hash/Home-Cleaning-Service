@@ -28,6 +28,7 @@ from commons.security import (
     hash_password,
 )
 from commons.logger import logger
+from commons.mail import send_verification_link
 from models.user_model import User
 
 # Initialize logger
@@ -89,14 +90,21 @@ class AuthController:
 
             log.info(f"User registered successfully: {email}")
 
-            # Create tokens
-            tokens = create_tokens(user_id=str(user.id), role=user.role.value)
+            # Send verification email
+            try:
+                # Generate verification token
+                token = create_email_verification_token(email)
+                # Send email
+                await send_verification_link(email, token)
+                log.info(f"Verification email sent to: {email}")
+            except Exception as e:
+                log.error(f"Failed to send verification email to {email}: {str(e)}")
+                # Continue, but user might need to request resend
 
-            # Build response
+            # Build response (No tokens returned - user must verify email)
             return {
-                "user": self._user_to_dict(user),
-                "tokens": tokens,
-                "message": "Registration successful",
+                "message": "Registration successful. Please check your email to verify your account.",
+                "success": True,
             }
 
         except ValueError as e:
@@ -149,6 +157,13 @@ class AuthController:
             log.warning(f"Login attempt for deactivated account: {email}")
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail="Account is deactivated"
+            )
+
+        if not user.email_verified:
+            log.warning(f"Login attempt for unverified email: {email}")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Email not verified. Please check your inbox.",
             )
 
         log.info(f"Login successful for: {email}")
@@ -398,13 +413,13 @@ class AuthController:
         # Generate verification token
         token = create_email_verification_token(email)
 
-        # TODO: Send actual email in production
-        log.info(f"Verification token generated for: {email}")
+        # Send actual email
+        await send_verification_link(email, token)
+        log.info(f"Verification token generated and sent for: {email}")
 
         return {
             "message": "Verification email sent",
             "success": True,
-            "verification_token": token,  # Remove in production!
         }
 
     async def verify_email(
@@ -464,6 +479,146 @@ class AuthController:
         return {"user": self._user_to_dict(user)}
 
     # =========================================================================
+    # GOOGLE OAUTH
+    # =========================================================================
+
+    async def get_google_login_url(self, state: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Get Google OAuth login URL.
+
+        Args:
+            state: Optional state parameter for CSRF protection
+
+        Returns:
+            Dictionary with Google OAuth URL
+
+        Raises:
+            HTTPException 500: If Google OAuth is not configured
+        """
+        from commons.google_oauth import (
+            get_google_oauth_url,
+            is_google_oauth_configured,
+        )
+
+        if not is_google_oauth_configured():
+            log.error("Google OAuth not configured")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Google OAuth is not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.",
+            )
+
+        url = get_google_oauth_url(state)
+
+        return {"url": url, "message": "Redirect user to this URL for Google login"}
+
+    async def google_callback(
+        self,
+        code: str,
+        role: str = "customer",
+    ) -> Dict[str, Any]:
+        """
+        Handle Google OAuth callback.
+
+        Exchange the authorization code for tokens, fetch user info,
+        and create or login the user.
+
+        Args:
+            code: Authorization code from Google
+            role: User role for new users ('customer' or 'cleaner')
+
+        Returns:
+            Dictionary containing user data and tokens
+
+        Raises:
+            HTTPException 400: If code exchange fails
+            HTTPException 403: If account is deactivated
+        """
+        from commons.google_oauth import exchange_code_for_tokens, get_google_user_info
+
+        log.info("Processing Google OAuth callback")
+
+        # Exchange code for tokens
+        google_tokens = await exchange_code_for_tokens(code)
+
+        if not google_tokens:
+            log.error("Failed to exchange authorization code")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to authenticate with Google. Please try again.",
+            )
+
+        access_token = google_tokens.get("access_token")
+
+        # Fetch user info from Google
+        google_user = await get_google_user_info(access_token)
+
+        if not google_user:
+            log.error("Failed to fetch Google user info")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to get user information from Google.",
+            )
+
+        google_id = google_user.get("id")
+        email = google_user.get("email")
+        name = google_user.get("name")
+        picture = google_user.get("picture")
+
+        log.info(f"Google OAuth for: {email}")
+
+        # Check if user exists by Google ID
+        user = await user_crud.get_user_by_google_id(google_id)
+
+        if not user:
+            # Check if user exists by email (might have registered with password)
+            user = await user_crud.get_user_by_email(email)
+
+            if user:
+                # Link existing account with Google
+                log.info(f"Linking existing account with Google: {email}")
+                user = await user_crud.update_user_google_info(
+                    user_id=str(user.id),
+                    google_id=google_id,
+                    profile_pic=picture,
+                )
+            else:
+                # Create new user
+                log.info(f"Creating new Google user: {email}")
+                try:
+                    user = await user_crud.create_google_user(
+                        email=email,
+                        full_name=name,
+                        google_id=google_id,
+                        profile_pic=picture,
+                        role=role,
+                    )
+                except ValueError as e:
+                    log.error(f"Failed to create Google user: {str(e)}")
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=str(e),
+                    )
+
+        # Check if user is active
+        if not user.is_active:
+            log.warning(f"Google login attempt for deactivated account: {email}")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Account is deactivated",
+            )
+
+        log.info(f"Google login successful for: {email}")
+
+        # Create our app's JWT tokens
+        tokens = create_tokens(user_id=str(user.id), role=user.role.value)
+
+        return {
+            "user": self._user_to_dict(user),
+            "tokens": tokens,
+            "message": "Google login successful",
+        }
+
+    # =========================================================================
     # HELPER METHODS
     # =========================================================================
 
@@ -484,6 +639,7 @@ class AuthController:
             "phone": user.phone,
             "role": user.role.value,
             "profile_pic": user.profile_pic,
+            "auth_provider": user.auth_provider,
             "is_active": user.is_active,
             "email_verified": user.email_verified,
             "created_at": user.created_at.isoformat() if user.created_at else None,

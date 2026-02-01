@@ -47,7 +47,11 @@ class User(Model):
 
     # Core Authentication Fields
     email: str = Field(unique=True, index=True)
-    password_hash: str
+    password_hash: Optional[str] = None  # Optional for OAuth users
+
+    # OAuth Fields
+    auth_provider: str = Field(default="local")  # "local" or "google"
+    google_id: Optional[str] = None  # Google's unique user ID
 
     # Role & Profile
     role: UserRole = Field(default=UserRole.CUSTOMER, index=True)
