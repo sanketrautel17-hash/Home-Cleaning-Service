@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -8,9 +8,16 @@ const GoogleCallback = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { handleGoogleCallback } = useAuth();
+    const processedRef = useRef(false);
 
     useEffect(() => {
         const processCallback = async () => {
+            // Prevent duplicate processing (React strict mode can call useEffect twice)
+            if (processedRef.current) {
+                return;
+            }
+            processedRef.current = true;
+
             const code = searchParams.get('code');
             const state = searchParams.get('state');
             const errorParam = searchParams.get('error');
@@ -38,7 +45,7 @@ const GoogleCallback = () => {
         };
 
         processCallback();
-    }, [searchParams, handleGoogleCallback, navigate]);
+    }, []); // Empty dependency array - run only once
 
     if (loading) {
         return (

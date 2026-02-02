@@ -104,6 +104,7 @@ async def exchange_code_for_tokens(code: str) -> Optional[Dict[str, Any]]:
         ...     access_token = tokens["access_token"]
     """
     log.info("Exchanging authorization code for tokens")
+    log.info(f"Using redirect_uri: {GOOGLE_REDIRECT_URI}")
 
     data = {
         "code": code,
@@ -122,7 +123,11 @@ async def exchange_code_for_tokens(code: str) -> Optional[Dict[str, Any]]:
             )
 
             if response.status_code != 200:
-                log.error(f"Token exchange failed: {response.text}")
+                log.error(f"Token exchange failed with status {response.status_code}")
+                log.error(f"Response: {response.text}")
+                log.error(
+                    f"Request data (without secret): code={code[:20]}..., client_id={GOOGLE_CLIENT_ID}, redirect_uri={GOOGLE_REDIRECT_URI}"
+                )
                 return None
 
             tokens = response.json()

@@ -27,34 +27,8 @@ export const AuthProvider = ({ children }) => {
         checkAuth();
     }, []);
 
-    // Handle Google OAuth callback
-    useEffect(() => {
-        const handleGoogleCallback = async () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-            const state = urlParams.get('state');
-
-            // Check if this is a Google OAuth callback
-            if (code && window.location.pathname.includes('google-callback')) {
-                try {
-                    const response = await api.get(`/auth/google/callback?code=${code}${state ? `&state=${state}` : ''}`);
-                    const { user, tokens } = response.data;
-
-                    localStorage.setItem('access_token', tokens.access_token);
-                    localStorage.setItem('refresh_token', tokens.refresh_token);
-                    setUser(user);
-
-                    // Redirect to dashboard
-                    window.location.href = '/dashboard';
-                } catch (error) {
-                    console.error("Google login failed", error);
-                    window.location.href = '/login?error=google_login_failed';
-                }
-            }
-        };
-
-        handleGoogleCallback();
-    }, []);
+    // NOTE: Google OAuth callback is handled by GoogleCallback.jsx component
+    // Do NOT handle it here to avoid duplicate code exchange attempts
 
     const login = async (email, password) => {
         const response = await api.post('/auth/login', { email, password });
@@ -98,7 +72,9 @@ export const AuthProvider = ({ children }) => {
 
     // Handle Google OAuth callback (for direct API call if needed)
     const handleGoogleCallback = async (code, state) => {
-        const response = await api.get(`/auth/google/callback?code=${code}${state ? `&state=${state}` : ''}`);
+        // URL encode the code to handle special characters
+        const encodedCode = encodeURIComponent(code);
+        const response = await api.get(`/auth/google/callback?code=${encodedCode}${state ? `&state=${encodeURIComponent(state)}` : ''}`);
         const { user, tokens } = response.data;
 
         localStorage.setItem('access_token', tokens.access_token);
