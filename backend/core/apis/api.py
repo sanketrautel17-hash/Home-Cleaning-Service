@@ -14,6 +14,7 @@ from core.apis.routers.auth_router import router as auth_router
 from core.apis.routers.user_router import router as user_router
 from core.apis.routers.cleaner_router import router as cleaner_router
 from core.apis.routers.service_router import router as service_router
+from core.apis.routers.booking_router import router as booking_router
 
 # Import database functions
 from database.database import connect_to_mongo, close_mongo_connection
@@ -54,8 +55,8 @@ professionals with customers seeking cleaning services.
 ### Features:
 - 🔐 **Authentication**: JWT-based login with access & refresh tokens
 - 👤 **User Management**: Customer and Cleaner profiles
-- 🧹 **Services**: Cleaners create custom service packages (coming soon)
-- 📅 **Bookings**: Search, book, and manage cleaning services (coming soon)
+- 🧹 **Services**: Cleaners create custom service packages
+- 📅 **Bookings**: Search, book, and manage cleaning services
 - ⭐ **Reviews**: Rate and review completed services (coming soon)
 - 💳 **Payments**: Secure payment processing (coming soon)
 
@@ -100,6 +101,9 @@ app.include_router(cleaner_router)
 
 # Service routes: /api/services/*
 app.include_router(service_router)
+
+# Booking routes: /api/bookings/*
+app.include_router(booking_router)
 
 
 # =============================================================================
