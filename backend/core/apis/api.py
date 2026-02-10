@@ -12,6 +12,8 @@ from fastapi.middleware.cors import CORSMiddleware
 # Import routers
 from core.apis.routers.auth_router import router as auth_router
 from core.apis.routers.user_router import router as user_router
+from core.apis.routers.cleaner_router import router as cleaner_router
+from core.apis.routers.service_router import router as service_router
 
 # Import database functions
 from database.database import connect_to_mongo, close_mongo_connection
@@ -92,6 +94,12 @@ app.include_router(auth_router)
 
 # User routes: /api/users/*
 app.include_router(user_router)
+
+# Cleaner routes: /api/cleaners/*
+app.include_router(cleaner_router)
+
+# Service routes: /api/services/*
+app.include_router(service_router)
 
 
 # =============================================================================

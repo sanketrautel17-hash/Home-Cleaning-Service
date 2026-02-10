@@ -1,0 +1,75 @@
+============================================================
+HOME CLEANING SERVICE API - PHASE 1 COMPREHENSIVE TESTS
+============================================================
+
+🔧 Security utils loaded - can generate tokens for testing
+
+✅ PASS - GET / - Root endpoint
+    Status: 200
+    Response: (truncated) {'message': 'Welcome to Home Cleaning Service API', 'status': 'running', 'version': '1.0.0', 'docs': {'swagger': '/docs', 'redoc': '/redoc', 'openapi': '/openapi.json'}, 'endpoints': {'auth': '/api/au...
+
+✅ PASS - GET /health - Health check
+    Status: 200
+    Response: {'status': 'healthy', 'database': 'connected'}
+
+✅ PASS - POST /api/auth/register - Register user
+    Status: 201
+    Response: {'message': 'Registration successful. Please check your email to verify your account.', 'success': True}
+
+✅ PASS - POST /api/auth/verify-email - Verify email
+    Status: 200
+    Response: {'message': 'Email verified successfully', 'success': True}
+
+✅ PASS - POST /api/auth/login - Login
+    Status: 200
+    Response: (truncated) {'user': {'id': '698aa280a32b4f0832656549', 'email': 'phase1test@example.com', 'full_name': 'Phase1 Test User', 'phone': '+919876543210', 'role': 'customer', 'profile_pic': None, 'auth_provider': 'loc...
+
+✅ PASS - GET /api/auth/me - Get current user (authenticated)
+    Status: 200
+    Response: (truncated) {'user': {'id': '698aa280a32b4f0832656549', 'email': 'phase1test@example.com', 'full_name': 'Phase1 Test User', 'phone': '+919876543210', 'role': 'customer', 'profile_pic': None, 'auth_provider': 'loc...
+
+✅ PASS - GET /api/users/me - Get user profile
+    Status: 200
+    Response: (truncated) {'user': {'id': '698aa280a32b4f0832656549', 'email': 'phase1test@example.com', 'full_name': 'Phase1 Test User', 'phone': '+919876543210', 'role': 'customer', 'profile_pic': None, 'is_active': True, 'e...
+
+✅ PASS - PUT /api/users/me - Update profile
+    Status: 200
+    Response: (truncated) {'user': {'id': '698aa280a32b4f0832656549', 'email': 'phase1test@example.com', 'full_name': 'Updated Test User', 'phone': '+911234567890', 'role': 'customer', 'profile_pic': None, 'is_active': True, '...
+
+✅ PASS - GET /api/users/ - List users
+    Status: 200
+    Response: (truncated) {'users': [{'id': '698aa1c6d7b24aecb94d4cae', 'full_name': 'Test User', 'role': 'customer', 'profile_pic': None, 'created_at': '2026-02-10T03:11:02.082000'}, {'id': '698aa280a32b4f0832656549', 'full_n...
+
+✅ PASS - GET /api/users/{user_id} - Get public profile
+    Status: 200
+    Response: {'user': {'id': '698aa280a32b4f0832656549', 'full_name': 'Updated Test User', 'role': 'customer', 'profile_pic': None, 'created_at': '2026-02-10T03:14:08.020000'}}
+
+✅ PASS - POST /api/auth/forgot-password - Forgot password
+    Status: 200
+    Response: {'message': 'If the email exists, a reset link has been sent', 'success': True}
+
+✅ PASS - POST /api/auth/reset-password - Reset password
+    Status: 200
+    Response: {'message': 'Password reset successful', 'success': True}
+
+✅ PASS - POST /api/auth/refresh - Token refresh
+    Status: 200
+    Response: (truncated) {'tokens': {'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjk4YWEyODBhMzJiNGYwODMyNjU2NTQ5Iiwicm9sZSI6ImN1c3RvbWVyIiwiZXhwIjoxNzcwNjk1MDUyLCJpYXQiOjE3NzA2OTMyNTIsInR5cGUiOiJhY2...
+
+✅ PASS - POST /api/auth/change-password - Change password
+    Status: 200
+    Response: {'message': 'Password changed successfully', 'success': True}
+
+✅ PASS - GET /api/auth/me - Unauthorized access (no token, expect 401/403)
+    Status: 401
+    Response: {'detail': 'Not authenticated'}
+
+✅ PASS - DELETE /api/users/me - Delete account
+    Status: 200
+    Response: {'message': 'Account deleted successfully', 'success': True}
+
+============================================================
+📊 RESULTS: 16/16 passed, 0/16 failed
+============================================================
+🎉 ALL TESTS PASSED! Phase 1 is fully functional!
+============================================================

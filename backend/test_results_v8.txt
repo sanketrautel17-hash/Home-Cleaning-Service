@@ -1,0 +1,217 @@
+﻿Connecting to http://127.0.0.1:8001...
+Server is healthy.
+
+--- Setup: Creating Cleaner (rautramashwini02@gmail.com) ---
+Cleaner already exists.
+Manually verifying rautramashwini02@gmail.com...
+Verification script executed successfully.
+Logging in Cleaner...
+Cleaner logged in.
+
+--- Setup: Creating Customer ---
+Customer registered.
+Manually verifying customer_p2_1770698014@example.com...
+Verification script executed successfully.
+Logging in Customer...
+Customer logged in.
+
+=== Testing Cleaner Profiles ===
+Profile already exists (expected prior run).
+
+Γ¥î FAIL - Get Existing Profile
+    Status: 500
+    Response: Internal Server Error
+python : Traceback (most recent call last):
+At line:1 char:1
++ python test_phase2_script.py 2>&1 | Out-File 
+-FilePath test_results_v ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Tr 
+   aceback (most recent call last)::String) []  
+  , RemoteException
+    + FullyQualifiedErrorId : NativeCommandErro 
+   r
+ 
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpx\_transpo
+rts\default.py", line 101, in 
+map_httpcore_exceptions
+    yield
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpx\_transpo
+rts\default.py", line 394, in 
+handle_async_request
+    resp = await 
+self._pool.handle_async_request(req)
+           
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpcore\_asyn
+c\connection_pool.py", line 256, in 
+handle_async_request
+    raise exc from None
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpcore\_asyn
+c\connection_pool.py", line 236, in 
+handle_async_request
+    response = await 
+connection.handle_async_request(
+               
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        pool_request.request
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpcore\_asyn
+c\connection.py", line 103, in 
+handle_async_request
+    return await 
+self._connection.handle_async_request(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpcore\_asyn
+c\http11.py", line 136, in handle_async_request
+    raise exc
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpcore\_asyn
+c\http11.py", line 106, in handle_async_request
+    ) = await 
+self._receive_response_headers(**kwargs)
+        
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpcore\_asyn
+c\http11.py", line 177, in 
+_receive_response_headers
+    event = await 
+self._receive_event(timeout=timeout)
+            
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpcore\_asyn
+c\http11.py", line 217, in _receive_event
+    data = await self._network_stream.read(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.READ_NUM_BYTES, timeout=timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpcore\_back
+ends\anyio.py", line 32, in read
+    with map_exceptions(exc_map):
+         ~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\contextlib.py", line 162, 
+in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpcore\_exce
+ptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ReadError
+
+The above exception was the direct cause of the 
+following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\SANKET\Education\project\backen
+d\test_phase2_script.py", line 370, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\asyncio\runners.py", line 
+195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\asyncio\runners.py", line 
+118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\asyncio\base_events.py", 
+line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "C:\Users\SANKET\Education\project\backen
+d\test_phase2_script.py", line 363, in main
+    await test_cleaner_profile(client)
+  File "C:\Users\SANKET\Education\project\backen
+d\test_phase2_script.py", line 227, in 
+test_cleaner_profile
+    resp = await client.post(
+           ^^^^^^^^^^^^^^^^^^
+        f"{BASE_URL}/api/cleaners/profile", 
+json=profile_data, headers=cust_headers
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpx\_client.
+py", line 1859, in post
+    return await self.request(
+           ^^^^^^^^^^^^^^^^^^^
+    ...<13 lines>...
+    )
+    ^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpx\_client.
+py", line 1540, in request
+    return await self.send(request, auth=auth, 
+follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpx\_client.
+py", line 1629, in send
+    response = await self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpx\_client.
+py", line 1657, in _send_handling_auth
+    response = await 
+self._send_handling_redirects(
+               
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpx\_client.
+py", line 1694, in _send_handling_redirects
+    response = await 
+self._send_single_request(request)
+               
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpx\_client.
+py", line 1730, in _send_single_request
+    response = await 
+transport.handle_async_request(request)
+               
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpx\_transpo
+rts\default.py", line 393, in 
+handle_async_request
+    with map_httpcore_exceptions():
+         ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\contextlib.py", line 162, 
+in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\SANKET\AppData\Local\Programs\P
+ython\Python313\Lib\site-packages\httpx\_transpo
+rts\default.py", line 118, in 
+map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ReadError

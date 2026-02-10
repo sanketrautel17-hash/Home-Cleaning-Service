@@ -16,8 +16,9 @@ Endpoints:
 - POST /send-verification - Resend verification email
 """
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status, Form
 from fastapi.responses import JSONResponse
+from fastapi.security import OAuth2PasswordRequestForm
 
 from controllers.auth_controller import auth_controller
 from commons.dependencies import get_current_user
@@ -143,21 +144,23 @@ async def register(request: UserRegisterRequest):
         401: {"description": "Invalid email or password"},
     },
 )
-async def login(request: UserLoginRequest):
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     """
-    Authenticate user and receive tokens.
+    Login to get access token.
 
-    - **email**: Registered email address
-    - **password**: User's password
-
-    Returns access token (30 min) and refresh token (7 days).
+    - **username**: Email address
+    - **password**: Password
     """
-    result = await auth_controller.login(
-        email=request.email,
-        password=request.password,
+    return await auth_controller.login(
+        email=form_data.username,
+        password=form_data.password,
     )
 
-    return result
+
+@router.post("/debug-login")
+async def debug_login(username: str = Form(...), password: str = Form(...)):
+    """Debug endpoint for form data parsing."""
+    return {"received_username": username, "received_password": password}
 
 
 # =============================================================================
