@@ -526,6 +526,6 @@ async def google_callback(code: str, state: str = None, role: str = "customer"):
     - **state**: State parameter for CSRF verification (if provided during login)
     - **role**: User role for new accounts ('customer' or 'cleaner')
     """
-    result = await auth_controller.google_callback(code=code, role=role)
+    result = await auth_controller.google_callback(code=code, state=state, role=role)
 
     return result

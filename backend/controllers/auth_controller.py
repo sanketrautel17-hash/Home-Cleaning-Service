@@ -13,6 +13,7 @@ Handles:
 - Password change
 """
 
+import json
 from typing import Dict, Any, Optional
 from fastapi import HTTPException, status
 
@@ -514,6 +515,7 @@ class AuthController:
     async def google_callback(
         self,
         code: str,
+        state: Optional[str] = None,
         role: str = "customer",
     ) -> Dict[str, Any]:
         """
@@ -524,6 +526,7 @@ class AuthController:
 
         Args:
             code: Authorization code from Google
+            state: State parameter containing intent (login/register)
             role: User role for new users ('customer' or 'cleaner')
 
         Returns:
@@ -536,6 +539,19 @@ class AuthController:
         from commons.google_oauth import exchange_code_for_tokens, get_google_user_info
 
         log.info("Processing Google OAuth callback")
+
+        # Parse state for intent
+        intent = "register"  # Default behavior
+        if state:
+            try:
+                state_data = json.loads(state)
+                if isinstance(state_data, dict):
+                    intent = state_data.get("intent", "register")
+                    if "role" in state_data:
+                        role = state_data["role"]
+            except (json.JSONDecodeError, TypeError):
+                # If state is not JSON, ignore it
+                pass
 
         # Exchange code for tokens
         google_tokens = await exchange_code_for_tokens(code)
@@ -572,6 +588,14 @@ class AuthController:
         if not user:
             # Check if user exists by email (might have registered with password)
             user = await user_crud.get_user_by_email(email)
+
+            # If user still doesn't exist and intent is login, fail
+            if not user and intent == "login":
+                log.warning(f"Login failed for non-existent user: {email}")
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Account does not exist. Please sign up first.",
+                )
 
             if user:
                 # Link existing account with Google

@@ -26,12 +26,23 @@ const Navbar = () => {
                 <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
                     {user ? (
                         <>
+                            <Link to="/search" style={{ color: 'var(--text-muted)' }}>Find Services</Link>
+
+                            {user.role === 'customer' && (
+                                <Link to="/my-bookings" style={{ color: 'var(--text-muted)' }}>My Bookings</Link>
+                            )}
+
+                            {user.role === 'cleaner' && (
+                                <>
+                                    <Link to="/cleaner-jobs" style={{ color: 'var(--text-muted)' }}>Incoming Jobs</Link>
+                                    <Link to="/my-services" style={{ color: 'var(--text-muted)' }}>My Services</Link>
+                                </>
+                            )}
+
                             <Link to="/dashboard" style={{ color: 'var(--text-muted)' }}>Dashboard</Link>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <span className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.875rem' }}>
-                                    {user.full_name}
-                                </span>
-                                <button onClick={logout} className="btn btn-secondary">
+                                <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{user.full_name}</span>
+                                <button onClick={logout} className="btn btn-secondary" style={{ padding: '0.5rem 1rem' }}>
                                     Logout
                                 </button>
                             </div>

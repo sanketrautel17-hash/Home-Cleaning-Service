@@ -208,6 +208,20 @@ class BookingCRUD:
         await self.engine.save(booking)
         return booking
 
+    async def update_payment_status(
+        self, booking_id: str, new_status: str
+    ) -> Optional[Booking]:
+        """Update payment status (e.g., pending, completed)."""
+        booking = await self.get_booking_by_id(booking_id)
+        if not booking:
+            return None
+
+        booking.payment_status = new_status
+        booking.updated_at = datetime.utcnow()
+
+        await self.engine.save(booking)
+        return booking
+
 
 # Create singleton instance
 booking_crud = BookingCRUD()

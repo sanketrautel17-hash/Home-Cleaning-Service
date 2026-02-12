@@ -20,7 +20,7 @@ const Register = () => {
         setGoogleLoading(true);
         setError('');
         try {
-            await loginWithGoogle();
+            await loginWithGoogle('register', formData.role);
             // This will redirect to Google, so we won't reach here
         } catch (err) {
             setGoogleLoading(false);

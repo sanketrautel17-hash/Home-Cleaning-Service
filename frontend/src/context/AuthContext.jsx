@@ -57,9 +57,13 @@ export const AuthProvider = ({ children }) => {
     };
 
     // Google OAuth login - redirect to Google
-    const loginWithGoogle = async () => {
+    const loginWithGoogle = async (intent = 'register', role = null) => {
         try {
-            const response = await api.get('/auth/google/login');
+            // Encode intent and role in state parameter
+            const state = JSON.stringify({ intent, role });
+            const response = await api.get('/auth/google/login', {
+                params: { state }
+            });
             const { url } = response.data;
 
             // Redirect to Google OAuth page

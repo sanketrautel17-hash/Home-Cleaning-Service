@@ -29,7 +29,7 @@ const Login = () => {
         setGoogleLoading(true);
         setError('');
         try {
-            await loginWithGoogle();
+            await loginWithGoogle('login');
             // This will redirect to Google, so we won't reach here
         } catch (err) {
             setGoogleLoading(false);

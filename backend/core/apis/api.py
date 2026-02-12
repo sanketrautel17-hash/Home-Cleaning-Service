@@ -15,6 +15,8 @@ from core.apis.routers.user_router import router as user_router
 from core.apis.routers.cleaner_router import router as cleaner_router
 from core.apis.routers.service_router import router as service_router
 from core.apis.routers.booking_router import router as booking_router
+from core.apis.routers.review_router import router as review_router
+from core.apis.routers.payment_router import router as payment_router
 
 # Import database functions
 from database.database import connect_to_mongo, close_mongo_connection
@@ -57,8 +59,8 @@ professionals with customers seeking cleaning services.
 - 👤 **User Management**: Customer and Cleaner profiles
 - 🧹 **Services**: Cleaners create custom service packages
 - 📅 **Bookings**: Search, book, and manage cleaning services
-- ⭐ **Reviews**: Rate and review completed services (coming soon)
-- 💳 **Payments**: Secure payment processing (coming soon)
+- ⭐ **Reviews**: Rate and review completed services
+- 💳 **Payments**: Secure payment processing
 
 ### User Roles:
 - **Customer**: Book cleaning services, leave reviews
@@ -104,6 +106,12 @@ app.include_router(service_router)
 
 # Booking routes: /api/bookings/*
 app.include_router(booking_router)
+
+# Review routes: /api/reviews/*
+app.include_router(review_router)
+
+# Payment routes: /api/payments/*
+app.include_router(payment_router)
 
 
 # =============================================================================
